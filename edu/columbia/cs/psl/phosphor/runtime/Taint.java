@@ -25,8 +25,6 @@ public class Taint<T> implements Serializable {
 	}
 
 	
-	
-	
 	//?
 	protected void copyFrom(Taint<T> in) {
 		taintLevel = in.taintLevel;
@@ -136,11 +134,16 @@ public class Taint<T> implements Serializable {
 					dependencies.addUnique(t2.lbl);
 				dependencies.addAll(t2.dependencies);
 			}
+			//if both the taints are not null, this is where we combine the tags
+			taintLevel = TaintLevel.gLB(t1.taintLevel, t2.taintLevel);
+			
 		}
 		if(Configuration.derivedTaintListener != null)
 			Configuration.derivedTaintListener.doubleDepCreated(t1, t2, this);
 	}
 	public Taint() {
+		//let's find out where this is called
+		taintLevel = TaintLevel.UNKNOWN;
 		dependencies = new LinkedList<T>();
 	}
 	public boolean addDependency(Taint<T> d)
@@ -194,8 +197,10 @@ public class Taint<T> implements Serializable {
 		{
 			MultiTainter.taintedObject(obj, new Taint(t1));
 		}
-		else
+		else {
 			t.addDependency(t1);
+			t.taintLevel = TaintLevel.gLB(t.taintLevel, t1.taintLevel);
+		}
 	}
 	public static <T> Taint<T> combineTags(Taint<T> t1, Taint<T> t2)
 	{
@@ -207,9 +212,10 @@ public class Taint<T> implements Serializable {
 			return t2;
 		if(t1 == t2)
 			return t1;
-		if(t1.lbl == null && t1.hasNoDependencies())
+		if(t1.lbl == null && t1.hasNoDependencies()){ //why would this happen?
 			return t2;
-		if(t2.lbl == null && t2.hasNoDependencies())
+		}
+		if(t2.lbl == null && t2.hasNoDependencies()) //..
 			return t1;
 		if(IGNORE_TAINTING)
 			return t1;

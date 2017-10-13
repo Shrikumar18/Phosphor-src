@@ -12,6 +12,8 @@ import edu.columbia.cs.psl.phosphor.struct.ControlTaintTagStack;
 
 public class DataAndControlFlowTagFactory implements TaintTagFactory, Opcodes {
 
+	//we could add another method in this class that allows specification of TaintLevel.
+	//we will for now assume that the default is TAINTED
 	@Override
 	public Taint<?> getAutoTaint(String source) {
 		return new Taint(source);
