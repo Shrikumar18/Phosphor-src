@@ -23,6 +23,7 @@ public class SourceSinkTaintingMV extends MethodVisitor implements Opcodes {
 	int access;
 	boolean isStatic;
 	Object lbl;
+	Object level;
 
 	public SourceSinkTaintingMV(MethodVisitor mv, int access, String owner, String name, String desc, String origDesc) {
 		super(ASM5, mv);
@@ -36,7 +37,9 @@ public class SourceSinkTaintingMV extends MethodVisitor implements Opcodes {
 		this.isStatic = (access & Opcodes.ACC_STATIC) != 0;
 		if (this.thisIsASource) {
 			lbl = sourceSinkManager.getLabel(owner, name, desc);
-			System.out.println("Source: " + owner + "." + name + desc + " Label: " + lbl);
+			level = sourceSinkManager.getLevel(lbl.toString());
+			String levelString = level != null ? " Level: " + level : "";
+			System.out.println("Source: " + owner + "." + name + desc + " Label: " + lbl + levelString);
 		}
 		if (this.thisIsASink)
 			System.out.println("Sink: " + owner + "." + name + desc);
@@ -46,7 +49,12 @@ public class SourceSinkTaintingMV extends MethodVisitor implements Opcodes {
 		if (Configuration.MULTI_TAINTING) {
 			super.visitFieldInsn(GETSTATIC, Type.getInternalName(Configuration.class), "taintTagFactory", Type.getDescriptor(TaintTagFactory.class));
 			super.visitLdcInsn(lbl);
-			super.visitMethodInsn(INVOKEINTERFACE, Type.getInternalName(TaintTagFactory.class), "getAutoTaint", "(Ljava/lang/String;)"+Configuration.TAINT_TAG_DESC, true);
+			if (level != null){
+				super.visitLdcInsn(level);
+				super.visitMethodInsn(INVOKEINTERFACE, Type.getInternalName(TaintTagFactory.class), "getTaintWithLevel", "(Ljava/lang/String;Ljava/lang/String;)"+Configuration.TAINT_TAG_DESC, true);
+			} else {
+				super.visitMethodInsn(INVOKEINTERFACE, Type.getInternalName(TaintTagFactory.class), "getAutoTaint", "(Ljava/lang/String;)"+Configuration.TAINT_TAG_DESC, true);
+			}
 		} else {
 			super.visitLdcInsn(lbl);
 		}

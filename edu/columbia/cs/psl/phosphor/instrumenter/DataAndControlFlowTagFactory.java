@@ -8,6 +8,7 @@ import org.objectweb.asm.Type;
 import edu.columbia.cs.psl.phosphor.Configuration;
 import edu.columbia.cs.psl.phosphor.TaintUtils;
 import edu.columbia.cs.psl.phosphor.runtime.Taint;
+import edu.columbia.cs.psl.phosphor.runtime.TaintLevel;
 import edu.columbia.cs.psl.phosphor.struct.ControlTaintTagStack;
 
 public class DataAndControlFlowTagFactory implements TaintTagFactory, Opcodes {
@@ -18,6 +19,15 @@ public class DataAndControlFlowTagFactory implements TaintTagFactory, Opcodes {
 	public Taint<?> getAutoTaint(String source) {
 		return new Taint(source);
 	}
+	
+	//Added by Adam
+	@Override
+	public Taint<?> getTaintWithLevel(String source, String level){
+		Taint taint = new Taint(source);
+		taint.taintLevel = TaintLevel.getLevelFromString(level);
+		return taint;
+	}
+	
 	@Override
 	public void methodOp(int opcode, String owner, String name, String desc, boolean itfc, MethodVisitor mv, LocalVariableManager lvs, TaintPassingMV ta) {
 	}

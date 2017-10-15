@@ -14,10 +14,20 @@ public class BasicSourceSinkManager extends SourceSinkManager {
 	static HashSet<String> sources = new HashSet<String>();
 	static HashMap<String, Object> sourceLabels = new HashMap<String, Object>();
 	
+	//For testing
+	static HashMap<String, Object> sourceLevel = new HashMap<String, Object>();
+	
 	@Override
 	public Object getLabel(String str) {
 		return sourceLabels.get(str);
 	}
+	
+	//Added by Adam
+	@Override
+	public Object getLevel(String source){
+		return sourceLevel.get(source);
+	}
+	
 	static {
 		if(Instrumenter.sourcesFile == null && Instrumenter.sinksFile == null && !TaintTrackingClassVisitor.IS_RUNTIME_INST)
 		{
@@ -40,9 +50,22 @@ public class BasicSourceSinkManager extends SourceSinkManager {
 						lastLine = line;
 						if(!line.startsWith("#") && !line.isEmpty())
 						{
-							sources.add(line);
-							if(Configuration.MULTI_TAINTING)
-								sourceLabels.put(line, line);
+							String source;
+							String level = null;
+							if (line.contains("*")){
+								String[] params = line.split("\\*");
+								source = params[0];
+								level = params[1];
+							} else {
+								source = line;
+							}
+							sources.add(source);
+							if(Configuration.MULTI_TAINTING){
+								sourceLabels.put(source, source);
+								if (level != null){
+									sourceLevel.put(source, level);
+								}
+							}
 							else
 							{
 								if(i > 32)

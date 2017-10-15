@@ -9,6 +9,8 @@ public interface TaintTagFactory {
 
 	public Taint<?> getAutoTaint(String source);
 	
+	public Taint<?> getTaintWithLevel(String source, String level);
+	
 	public void instrumentationStarting(String className);
 	public void instrumentationStarting(int access, String methodName, String methodDesc);
 

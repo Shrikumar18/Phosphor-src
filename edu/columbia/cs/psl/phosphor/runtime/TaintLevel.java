@@ -29,6 +29,21 @@ public enum TaintLevel implements Comparable<TaintLevel> {
 			return tl1.compareTo(tl2) > 0 ? tl1 : tl2;
 		}
 	}
+	
+	public static final TaintLevel getLevelFromString(String levelIn){
+		//TODO: add a null check
+		
+		if (levelIn.equalsIgnoreCase("untainted")){
+			return UNTAINTED;
+		} else if (levelIn.equalsIgnoreCase("maybe_tainted") || levelIn.equalsIgnoreCase("maybetainted")){
+			return MAYBE_TAINTED;
+		} else if (levelIn.equalsIgnoreCase("tainted")){
+			return TAINTED;
+		} else {
+			return TAINTED; //this case should have a default instead of just assuming its tainted
+		}
+	}
+	
 		
 	//for testing
 	public static void main(String [] args){

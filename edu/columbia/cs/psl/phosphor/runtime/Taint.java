@@ -15,6 +15,7 @@ public class Taint<T> implements Serializable {
 	
 	public static boolean IGNORE_TAINTING;
 
+	//This is calling the no args constructor of Taint and thus will result in an UNKOWN tag
 	public static final <T> Taint<T> copyTaint(Taint<T> in)
 	{
 		if(in == null)
@@ -69,7 +70,7 @@ public class Taint<T> implements Serializable {
 			}
 		}
 		depStr += "]";
-		return "Taint [level=" + taintLevel + "lbl=" + lbl + " "+depStr+"]";
+		return "Taint [level=" + taintLevel + " lbl=" + lbl + " "+depStr+"]";
 	}
 	public transient Object debug;
 	public T lbl;
@@ -78,7 +79,7 @@ public class Taint<T> implements Serializable {
 	
 	public transient LinkedList<EnqueuedTaint> enqueuedInControlFlow;
 	public Taint(T lbl) {
-		this.taintLevel = TaintLevel.UNKNOWN; //don't know what's happening here
+		this.taintLevel = TaintLevel.TAINTED; //It looks like this is how Taints are initialized
 		this.lbl = lbl;
 		dependencies = new LinkedList<T>();
 	}

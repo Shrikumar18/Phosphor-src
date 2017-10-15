@@ -1,5 +1,5 @@
-TestingObjectTags.getTaintedInt1(I)I
-TestingObjectTags.getTaintedInt2(I)I
+TestingObjectTags.getTaintedInt1(I)I*MAYBE_TAINTED
+TestingObjectTags.getTaintedInt2(I)I*UNTAINTED
 TestingObjectTags.getTaintedDouble1(D)D
 TestingObjectTags.getTaintedString1(Ljava/lang/String;)Ljava/lang/String;
 TestingObjectTags.getTaintedString2(Ljava/lang/String;)Ljava/lang/String;

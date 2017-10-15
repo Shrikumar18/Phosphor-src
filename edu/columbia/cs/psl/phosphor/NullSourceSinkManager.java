@@ -17,4 +17,11 @@ public class NullSourceSinkManager extends SourceSinkManager{
 		return null;
 	}
 
+	@Override
+	public Object getLevel(String source) {
+		return null;
+	}
+	
+	
+
 }

@@ -49,6 +49,10 @@ public abstract class SourceSinkManager {
 			return getLabel(owner + "." + name + taintedDesc);
 	}
 	public abstract Object getLabel(String str);
+	
+	//Added by Adam
+	public abstract Object getLevel(String source);
+	
 	public boolean isSource(MethodInsnNode insn) {
 		return isSource(insn.owner + "." + insn.name + insn.desc);
 	}
