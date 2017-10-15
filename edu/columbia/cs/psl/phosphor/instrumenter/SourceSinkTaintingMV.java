@@ -23,7 +23,7 @@ public class SourceSinkTaintingMV extends MethodVisitor implements Opcodes {
 	int access;
 	boolean isStatic;
 	Object lbl;
-	Object level;
+	Object level; //introduction of taint level declaration
 
 	public SourceSinkTaintingMV(MethodVisitor mv, int access, String owner, String name, String desc, String origDesc) {
 		super(ASM5, mv);
@@ -45,11 +45,15 @@ public class SourceSinkTaintingMV extends MethodVisitor implements Opcodes {
 			System.out.println("Sink: " + owner + "." + name + desc);
 	}
 
+	/*
+	 * As of 10/15/17: TaintLevels can be explicitly declared in taint-sources.txt
+	 * If no level is declared, TAINTED is the default level
+	 */
 	private void loadSourceLblAndMakeTaint() {
 		if (Configuration.MULTI_TAINTING) {
 			super.visitFieldInsn(GETSTATIC, Type.getInternalName(Configuration.class), "taintTagFactory", Type.getDescriptor(TaintTagFactory.class));
 			super.visitLdcInsn(lbl);
-			if (level != null){
+			if (level != null){ //if there is a level explicitly declared, we will initialize the TaintLevel of Taint with it
 				super.visitLdcInsn(level);
 				super.visitMethodInsn(INVOKEINTERFACE, Type.getInternalName(TaintTagFactory.class), "getTaintWithLevel", "(Ljava/lang/String;Ljava/lang/String;)"+Configuration.TAINT_TAG_DESC, true);
 			} else {

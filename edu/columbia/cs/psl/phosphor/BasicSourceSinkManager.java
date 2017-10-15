@@ -28,6 +28,9 @@ public class BasicSourceSinkManager extends SourceSinkManager {
 		return sourceLevel.get(source);
 	}
 	
+	/*
+	 * 10/15/17: When parsing the sources file, check for * character. If present, a level has been explicitly stated
+	 */
 	static {
 		if(Instrumenter.sourcesFile == null && Instrumenter.sinksFile == null && !TaintTrackingClassVisitor.IS_RUNTIME_INST)
 		{
