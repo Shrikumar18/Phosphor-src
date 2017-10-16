@@ -7,14 +7,16 @@ import java.io.PrintWriter;
 
 public class TaintLogger {
 	public static void logTaint(Taint taint){
-			try(FileWriter fw = new FileWriter("/Users/adambarson/Desktop/Research/phosphor/Phosphor/log.txt", true);
+		//mypath = "/Users/adambarson/Desktop/Research/phosphor/Phosphor/log.txt"
+			try(FileWriter fw = new FileWriter("log.txt", true);
 				    BufferedWriter bw = new BufferedWriter(fw);
 					PrintWriter printLog = new PrintWriter(bw))
 				{
 				    printLog.println("Warning- possibly tainted value being passed to sink: " + taint);
 				} catch (IOException e) {
 					//TODO: DO NOT FORGET ABOUT THIS!
-				    throw new RuntimeException("LOG ERROR " + e.getMessage());
+				    //throw new RuntimeException("LOG ERROR " + e.getMessage());
+					System.err.println("Encountered error while logging: " + e.getMessage());
 				}
 		
 	}
