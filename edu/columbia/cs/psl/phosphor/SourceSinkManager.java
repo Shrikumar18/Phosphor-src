@@ -39,6 +39,9 @@ import edu.columbia.cs.psl.phosphor.struct.multid.MultiDTaintedArray;
 import edu.columbia.cs.psl.phosphor.struct.multid.MultiDTaintedArrayWithIntTag;
 
 public abstract class SourceSinkManager {
+	public abstract boolean isSanitizer(String san);
+	
+	
 	public abstract boolean isSource(String str);
 
 	public Object getLabel(String owner, String name, String taintedDesc)
@@ -175,6 +178,13 @@ public abstract class SourceSinkManager {
 		return returnType.getDescriptor();
 	}
 
+	public boolean isSanitizer(String owner, String name, String taintedDesc) {
+		if (name.endsWith("$$PHOSPHORTAGGED"))
+			return isSanitizer(owner + "." + name.replace("$$PHOSPHORTAGGED", "") + remapMethodDescToRemoveTaints(taintedDesc));
+		else
+			return isSanitizer(owner + "." + name + taintedDesc);
+	}
+	
 	public boolean isSink(String owner, String name, String taintedDesc) {
 		if (name.endsWith("$$PHOSPHORTAGGED"))
 			return isSink(owner + "." + name.replace("$$PHOSPHORTAGGED", "") + remapMethodDescToRemoveTaints(taintedDesc));

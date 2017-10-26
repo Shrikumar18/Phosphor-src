@@ -30,6 +30,13 @@ public enum TaintLevel implements Comparable<TaintLevel> {
 		}
 	}
 	
+	public static final TaintLevel lUB(TaintLevel tL){
+		if (tL == TaintLevel.TAINTED){
+			return TaintLevel.MAYBE_TAINTED;
+		}
+		return tL;
+	}
+	
 	public static final TaintLevel getLevelFromString(String levelIn){
 		//TODO: add a null check
 		
