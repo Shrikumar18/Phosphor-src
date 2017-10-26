@@ -220,6 +220,11 @@ public class Instrumenter {
 		.hasArg()
 		.desc("File with listing of taint sinks to use to check for auto-taints")
 		.build();
+	static Option opt_sanitizers = Option.builder("sanitizers")
+			.argName("sanitizers")
+			.hasArg()
+			.desc("File with listing of sanitizers")
+			.build();
 	static Option opt_dataTrack = Option.builder("withoutDataTrack")
 		.desc("Disable taint tracking through data flow (on by default)")
 		.build();
@@ -273,6 +278,10 @@ public class Instrumenter {
 
 	public static String sourcesFile;
 	public static String sinksFile;
+	
+	//Added 10/23 -- sanitizer file
+	public static String sanitizerFile;
+	
 	static boolean ANALYZE_ONLY;
 	
 	private static long START;
@@ -286,6 +295,9 @@ public class Instrumenter {
 		options.addOption(opt_dataTrack);
 		options.addOption(opt_taintSinks);
 		options.addOption(opt_taintSources);
+		
+		options.addOption(opt_sanitizers);
+		
 		options.addOption(opt_trackArrayLengthTaints);
 		options.addOption(opt_trackArrayIndexTaints);
 		options.addOption(opt_withoutFieldHiding);
@@ -319,6 +331,9 @@ public class Instrumenter {
 		
 		sourcesFile = line.getOptionValue("taintSources");
 		sinksFile = line.getOptionValue("taintSinks");
+		
+		//Added 10/23
+		sanitizerFile = line.getOptionValue("sanitizers");
 		
 		Configuration.MULTI_TAINTING = line.hasOption("multiTaint");
 		Configuration.IMPLICIT_TRACKING = line.hasOption("controlTrack");

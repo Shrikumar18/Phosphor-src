@@ -1,0 +1,2 @@
+TestingObjectTags.sanitizeMyInt(I)I
+TestingObjectTags.sanitizeMyString(Ljava/lang/String;)Ljava/lang/String;

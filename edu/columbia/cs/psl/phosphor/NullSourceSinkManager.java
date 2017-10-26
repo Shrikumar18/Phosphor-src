@@ -21,6 +21,12 @@ public class NullSourceSinkManager extends SourceSinkManager{
 	public Object getLevel(String source) {
 		return null;
 	}
+
+	@Override
+	public boolean isSanitizer(String san) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 	
 	
 

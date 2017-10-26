@@ -9,6 +9,7 @@ import edu.columbia.cs.psl.phosphor.struct.LazyArrayIntTags;
 import edu.columbia.cs.psl.phosphor.struct.LazyArrayObjTags;
 import edu.columbia.cs.psl.phosphor.struct.LazyCharArrayIntTags;
 import edu.columbia.cs.psl.phosphor.struct.LazyCharArrayObjTags;
+import edu.columbia.cs.psl.phosphor.struct.TaintedPrimitiveWithObjTag;
 import edu.columbia.cs.psl.phosphor.struct.TaintedWithIntTag;
 import edu.columbia.cs.psl.phosphor.struct.TaintedWithObjTag;
 
@@ -93,7 +94,7 @@ public class TaintChecker {
 		}
 		else if(obj instanceof Taint)
 		{
-			checkTaint(obj);
+			checkTaint((Taint)obj);
 		}
 	}
 	
@@ -192,14 +193,18 @@ public class TaintChecker {
 			tags.taints[i] = (Taint) tag;
 	}
 	public static void setTaints(Object obj, Taint tag) {
-		if(obj == null)
-			return;
-		if (obj instanceof TaintedWithObjTag) {
+		
+		
+		if(obj == null){
+			TaintLogger.logCustom("Null object with taint: " + tag);
+		} else if (obj instanceof TaintedWithObjTag) {
+			TaintLogger.logCustom("Tainted with obj tag: " + obj.toString() + " || with taint: " + tag);
 			((TaintedWithObjTag) obj).setPHOSPHOR_TAG(tag);
 		} else if (obj instanceof LazyArrayObjTags){
+			TaintLogger.logCustom("Tainting lazy array obj tags: " + obj.toString() + " || with taint: " + tag);
 			((LazyArrayObjTags)obj).setTaints(tag);
 		} else if (obj.getClass().isArray()) {
-			
+				TaintLogger.logCustom("Tainting array: " + obj.toString() + " || with taint: " + tag);
 				Object[] ar = (Object[]) obj;
 				for (Object o : ar)
 					setTaints(o, tag);
@@ -207,11 +212,53 @@ public class TaintChecker {
 		}
 		if(obj instanceof Iterable)
 		{
+			TaintLogger.logCustom("Tainting iterable: " + obj.toString() + " || with taint: " + tag);
 			for(Object o : ((Iterable)obj))
 				setTaints(o, tag);
 		}
 	}
 
+	public static void sanitize(Object obj){
+		
+		Taint tag = null;
+		if(obj == null){
+			TaintLogger.logCustom("Sanitizing null object");
+		} else if (obj instanceof TaintedWithObjTag) {
+			tag = (Taint) ((TaintedWithObjTag) obj).getPHOSPHOR_TAG();
+			
+			TaintLogger.logCustom("Sanitizing tainted with obj tag: " + obj + ", taint: " + tag);
+			
+			if (tag != null){
+				tag.taintLevel = TaintLevel.lUB(tag.taintLevel);
+				((TaintedWithObjTag) obj).setPHOSPHOR_TAG(tag);
+			}
+		} else if (obj instanceof TaintedPrimitiveWithObjTag){
+			tag = (Taint) ((TaintedPrimitiveWithObjTag) obj).taint;
+			
+			TaintLogger.logCustom("Sanitizing tainted primitive with obj tag: " + obj + ", taint: " + tag);
+			
+			if (tag != null){
+				tag.taintLevel = TaintLevel.lUB(tag.taintLevel);
+				((TaintedPrimitiveWithObjTag) obj).taint = tag;
+			}
+		} else if (obj instanceof LazyArrayObjTags){
+			TaintLogger.logCustom("Sanitizing lazy array obj tags: " + obj);
+			((LazyArrayObjTags)obj).sanitizeTaints();
+		} else if (obj.getClass().isArray()) {
+				TaintLogger.logCustom("Sanitizing array with obj tag: " + obj);
+				Object[] ar = (Object[]) obj;
+				for (Object o : ar)
+					sanitize(o);
+			
+		}
+		if(obj instanceof Iterable)
+		{
+			TaintLogger.logCustom("Sanitizing iterable with obj tag: " + obj + ", taint: " + tag);
+			for(Object o : ((Iterable)obj))
+				sanitize(o);
+		}
+	}
+	
 	public static void setTaints(LazyCharArrayIntTags tags, int tag) {
 		if(tags.val.length == 0)
 			return;

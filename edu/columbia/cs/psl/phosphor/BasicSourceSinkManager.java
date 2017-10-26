@@ -14,6 +14,8 @@ public class BasicSourceSinkManager extends SourceSinkManager {
 	static HashSet<String> sources = new HashSet<String>();
 	static HashMap<String, Object> sourceLabels = new HashMap<String, Object>();
 	
+	static HashSet<String> sanitizers = new HashSet<String>();
+	
 	//For testing
 	static HashMap<String, Object> sourceLevel = new HashMap<String, Object>();
 	
@@ -35,6 +37,10 @@ public class BasicSourceSinkManager extends SourceSinkManager {
 		if(Instrumenter.sourcesFile == null && Instrumenter.sinksFile == null && !TaintTrackingClassVisitor.IS_RUNTIME_INST)
 		{
 			System.err.println("No taint sources or sinks specified. To specify, add option -taintSources file and/or -taintSinks file where file is a file listing taint sources/sinks. See files taint-sinks and taint-samples in source for examples. Lines beginning with # are ignored.");
+		}
+		
+		if(Instrumenter.sanitizerFile == null){
+			System.err.println("Warning: no sanitizers specified. To specify, add option -sanitizers file where file is a file listing sanitizers.");
 		}
 
 		{
@@ -112,9 +118,33 @@ public class BasicSourceSinkManager extends SourceSinkManager {
 				throw new RuntimeException(e);
 			} 
 		}
+		{
+			Scanner s;
+			String lastLine = null;
+			try {
+				if(Instrumenter.sanitizerFile != null)
+				{
+					System.out.println("Using sanitizer file: " + Instrumenter.sanitizerFile);
+					s = new Scanner(new File(Instrumenter.sanitizerFile));
+
+					while (s.hasNextLine()) {
+						String line = s.nextLine();
+						lastLine = line;
+						if (!line.startsWith("#") && !line.isEmpty())
+							sanitizers.add(line);
+					}
+					s.close();
+				}
+			} catch (Throwable e) {
+				System.err.println("Unable to parse sanitizer file: " + Instrumenter.sanitizerFile);
+				if (lastLine != null)
+					System.err.println("Last line read: '" + lastLine + "'");
+				throw new RuntimeException(e);
+			} 
+		}
 		if (!TaintTrackingClassVisitor.IS_RUNTIME_INST)
 		{
-			System.out.println("Loaded " + sinks.size() + " sinks and " + sources.size() + " sources");
+			System.out.println("Loaded " + sinks.size() + " sinks, " + sanitizers.size() + " sanitizers,  and " + sources.size() + " sources");
 		}
 	}
 	
@@ -150,6 +180,28 @@ public class BasicSourceSinkManager extends SourceSinkManager {
 		return c1IsSuperforC2(c1, cn.superName);
 	}
 
+	
+	@Override
+	public boolean isSanitizer(String san) {
+		if (san.startsWith("["))
+			return false;
+		try {
+			String[] inD = san.split("\\.");
+			for (String s : sanitizers) {
+				String d[] = s.split("\\.");
+
+				if (d[1].equals(inD[1]) && c1IsSuperforC2(d[0], inD[0]))//desc is same
+				{
+				    return true;
+				}
+			}
+			return false;
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			return false;
+		}
+	}
+	
 	@Override
 	public boolean isSource(String str) {
 		if (str.startsWith("["))

@@ -3,6 +3,7 @@ package edu.columbia.cs.psl.phosphor.struct;
 import java.io.Serializable;
 
 import edu.columbia.cs.psl.phosphor.runtime.Taint;
+import edu.columbia.cs.psl.phosphor.runtime.TaintLevel;
 
 
 public abstract class LazyArrayObjTags implements Cloneable, Serializable {
@@ -25,6 +26,18 @@ public abstract class LazyArrayObjTags implements Cloneable, Serializable {
 
 
 	public abstract int getLength();
+	
+	public void sanitizeTaints(){
+		for(int i = 0; i < taints.length; i++)
+		{
+			Taint t = taints[i];
+			if (t != null){
+				t.taintLevel = TaintLevel.lUB(t.taintLevel);
+				taints[i]=t;
+			}
+		}
+	}
+	
 	public void setTaints(Taint tag) {
 		if(taints == null)
 			taints = new Taint[getLength()];
